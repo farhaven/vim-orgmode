@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import vim
-from orgmode._vim import echo, echom, echoe, ORGMODE, apply_count, repeat, insert_at_cursor, indent_orgmode
+from orgmode._vim import echom, ORGMODE
 from orgmode import settings
-from orgmode.menu import Submenu, Separator, ActionEntry, add_cmd_mapping_menu
-from orgmode.keybinding import Keybinding, Plug, Command
+from orgmode.menu import Submenu, add_cmd_mapping_menu
 from orgmode.liborgmode.checkboxes import Checkbox
 from orgmode.liborgmode.dom_obj import OrderListType
 
-from orgmode.py3compat.encode_compatibility import *
-from orgmode.py3compat.py_py3_string import *
-from orgmode.py3compat.unicode_compatibility import *
+from orgmode.py3compat.encode_compatibility import u_encode
+from orgmode.py3compat.py_py3_string import VIM_PY_CALL
+from orgmode.py3compat.unicode_compatibility import unicode
+
 
 class EditCheckbox(object):
 	u"""
@@ -59,10 +59,10 @@ class EditCheckbox(object):
 		if c is None:
 			h.checkboxes.append(nc)
 		else:
-			l = c.get_parent_list()
+			parents = c.get_parent_list()
 			idx = c.get_index_in_parent_list()
-			if l is not None and idx is not None:
-				l.insert(idx + (1 if below else 0), nc)
+			if parents is not None and idx is not None:
+				parents.insert(idx + (1 if below else 0), nc)
 				# workaround for broken associations, Issue #165
 				nc._parent = c.parent
 				if below:
@@ -126,9 +126,9 @@ class EditCheckbox(object):
 			start += 1
 		# vim's buffer behave just opposite to Python's list when inserting a
 		# new item.  The new entry is appended in vim put prepended in Python!
-		vim.current.buffer.append("") # workaround for neovim
+		vim.current.buffer.append("")  # workaround for neovim
 		vim.current.buffer[start:start] = [unicode(nc)]
-		del vim.current.buffer[-1] # restore from workaround for neovim
+		del vim.current.buffer[-1]  # restore from workaround for neovim
 
 		# update checkboxes status
 		cls.update_checkboxes_status()
