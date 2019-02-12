@@ -6,11 +6,11 @@ import subprocess
 import vim
 
 from orgmode._vim import ORGMODE, echoe, echom
-from orgmode.menu import Submenu, ActionEntry, add_cmd_mapping_menu
-from orgmode.keybinding import Keybinding, Plug, Command
+from orgmode.menu import Submenu, add_cmd_mapping_menu
 from orgmode import settings
 
 from orgmode.py3compat.py_py3_string import *
+
 
 class Export(object):
 	u"""
