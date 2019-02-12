@@ -9,7 +9,7 @@ from orgmode._vim import ORGMODE, echoe, echom
 from orgmode.menu import Submenu, add_cmd_mapping_menu
 from orgmode import settings
 
-from orgmode.py3compat.py_py3_string import *
+from orgmode.py3compat.py_py3_string import VIM_PY_CALL
 
 
 class Export(object):
