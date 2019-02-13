@@ -71,33 +71,21 @@ class Heading(DomObj):
 
 		# compute position of tags
 		if self.tags:
-			tabs = 0
 			spaces = 2
 			tags = u':%s:' % (u':'.join(self.tags), )
 
 			# FIXME this is broken because of missing associations for headings
-			ts = 6
 			tag_column = 77
 			if self.document:
-				ts = self.document.tabstop
 				tag_column = self.document.tag_column
 
 			len_heading = len(res)
 			len_tags = len(tags)
+
 			if len_heading + spaces + len_tags < tag_column:
-				spaces_to_next_tabstop = ts - divmod(len_heading, ts)[1]
+				spaces = tag_column - (len_heading + len_tags)
 
-				if len_heading + spaces_to_next_tabstop + len_tags < tag_column:
-					tabs, spaces = divmod(
-						tag_column - (len_heading + spaces_to_next_tabstop + len_tags),
-						ts)
-
-					if spaces_to_next_tabstop:
-						tabs += 1
-				else:
-					spaces = tag_column - (len_heading + len_tags)
-
-			res += u'\t' * tabs + u' ' * spaces + tags
+			res += u' ' * spaces + tags
 
 		# append a trailing space when there are just * and no text
 		if len(res) == self.level:
