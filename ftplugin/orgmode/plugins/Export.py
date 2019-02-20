@@ -9,6 +9,8 @@ from orgmode._vim import ORGMODE, echoe, echom
 from orgmode.menu import Submenu, add_cmd_mapping_menu
 from orgmode import settings
 
+from orgmode.liborgmode.headings import Heading
+
 from orgmode.py3compat.py_py3_string import VIM_PY_CALL
 
 
@@ -121,6 +123,43 @@ class Export(object):
 			echom(u'Export successful: %s.%s' % (vim.eval(u'expand("%:r")'), 'tex'))
 
 	@classmethod
+	def render_heading(cls, heading):
+		heading.init_checkboxes()
+		echom(u'Encountered heading of level {}'.format(heading.level))
+		echom(u'Children: {}'.format(heading.children))
+		echom(u'Body: {}'.format(heading.body))
+		echom(u'Body[t]: {}'.format([type(h) for h in heading.body]))
+		echom(u'Checkboxes: {}'.format([type(c) for c in heading.checkboxes]))
+		echom(u'Next item: {}, heading: {}, sibling: {}'.format(heading.next_item, heading.next_heading, heading.next_sibling))
+		echom(u'parents: {}'.format(heading.get_parent_list()))
+		echom(u'Dir: {}'.format(dir(heading)))
+
+		if heading.level == 1:
+			# TODO: Add tags and TODO state
+			body = "<section>\n"
+		else:
+			body = ""
+		body += "<h{level}>{title}</h{level}>\n".format(title=heading.title, level=heading.level)
+		if heading.body:
+			body += "\n".join(heading.body) + "\n"
+		for c in heading.children:
+			body += cls.render_heading(c) + "\n"
+		if heading.level == 1:
+			body += "</section>"
+		else:
+			pass
+		return body
+
+	@classmethod
+	def toreveal(cls):
+		doc = ORGMODE.get_document()
+		rendered_doc = ""
+		for h in doc.headings:
+			echom(u'Got heading: {}'.format(str(h)))
+			rendered_doc += cls.render_heading(h) + "\n"
+		echom(u'Rendered doc:\n{}'.format(rendered_doc))
+
+	@classmethod
 	def tomarkdown(cls):
 		u"""Export the current buffer as markdown using emacs orgmode."""
 		ret = cls._export(u'org-md-export-to-markdown')
@@ -178,6 +217,14 @@ class Export(object):
 			function=u':%s ORGMODE.plugins[u"Export"].tomarkdown()<CR>' % VIM_PY_CALL,
 			key_mapping=u'<localleader>em',
 			menu_desrc=u'To Markdown (via Emacs)'
+		)
+		# to reveal.js
+		add_cmd_mapping_menu(
+			self,
+			name=u'OrgExportToRevealJs',
+			function=u':%s ORGMODE.plugins[u"Export"].toreveal()<CR>' % VIM_PY_CALL,
+			key_mapping=u'<localleader>er',
+			menu_desrc="To Reveal.JS"
 		)
 
 # vim: set noexpandtab:
